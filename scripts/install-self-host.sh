@@ -242,7 +242,11 @@ fi
 
 [[ -d "$steam_dir" ]] || die "Steam tool directory does not exist: $steam_dir"
 
-./scripts/check-steam-update.sh "$env_file" --write-env
+rc=0
+./scripts/check-steam-update.sh "$env_file" --write-env || rc=$?
+if [[ $rc -gt 1 ]]; then
+  die "check-steam-update.sh failed (exit $rc)"
+fi
 ./scripts/load-images.sh "$env_file"
 docker compose --env-file "$env_file" config --quiet
 docker compose --env-file "$env_file" up -d postgres admin-rmq game-rmq
